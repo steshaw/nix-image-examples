@@ -15,9 +15,9 @@ case "$type" in
     ;;
   *)
     cp result "$out"
-    chmod +w "$out"
     ;;
 esac
+chmod +w "$out"
 docker load <"$out" | tee "$name.docker.out"
 image=$(sed 's/Loaded image: //' <"$name.docker.out")
 docker run -it --rm "${image}"
