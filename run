@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+type=$1
+name=$2
+name=${name%.nix}
+name=${name#./}
+
+nix-build "./${name}.nix"
+out="${name}.tar.gz"
+case "$type" in
+  stream)
+    ./result >"$out"
+    ;;
+  *)
+    cp result "$out"
+    chmod +w "$out"
+    ;;
+esac
+docker load <"$out" | tee "$name.docker.out"
+image=$(sed 's/Loaded image: //' <"$name.docker.out")
+docker run -it --rm "${image}"
